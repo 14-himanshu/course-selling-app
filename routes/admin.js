@@ -2,8 +2,8 @@ const { Router } = require("express");
 const { z } = require("zod");
 const { adminModel, courseModel } = require("../db");
 const bcrypt = require("bcrypt");
-const jwt = require('jsonwebtoken')
-const {JWT_ADMIN_PASSWORD} = require("../config");
+const jwt = require("jsonwebtoken");
+const { JWT_ADMIN_PASSWORD } = require("../config");
 const { adminMiddleware } = require("../middleware/admin");
 
 const adminRouter = Router();
@@ -78,25 +78,58 @@ adminRouter.post("/signin", async function (req, res) {
     });
   }
 });
-adminRouter.post("/course", adminMiddleware ,async function (req, res) {
-  const adminId = req.userId
+adminRouter.post("/course", adminMiddleware, async function (req, res) {
+  const adminId = req.userId;
 
-  const {title,description,imageUrl,price} = req.body
+  const { title, description, imageUrl, price } = req.body;
 
   const course = await courseModel.create({
     title,
     description,
     imageUrl,
     price,
-    createrId : adminId
-  })
+    createrId: adminId,
+  });
   res.json({
-    message : "Course cerated",
-    courseId : course._id
-  })
+    message: "Course cerated",
+    courseId: course._id,
+  });
 });
-adminRouter.put("/course", function (req, res) {});
-adminRouter.get("/course/all", function (req, res) {});
+adminRouter.put("/course", adminMiddleware, async function (req, res) {
+  const adminId = req.userId;
+
+  const { title, description, imageUrl, price, courseId } = req.body;
+
+  const course = await courseModel.updateOne(
+    {
+      // only update the course if the coursideId and the createrId is given below
+
+      id: courseId,
+      createrId: adminId,
+    },
+    {
+      title,
+      description,
+      imageUrl,
+      price,
+    }
+  );
+  res.json({
+    message: "Course updated",
+    courseId: course._id,
+  });
+});
+adminRouter.get("/course/all", adminMiddleware, async function (req, res) {
+  const adminId = req.userId;
+  const courses = await courseModel.find({
+    createrId: adminId,
+  });
+  res.json({
+    message: "Course updated",
+    courses,
+  });
+});
+
 
 module.exports = {
   adminRouter,
