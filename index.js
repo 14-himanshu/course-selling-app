@@ -4,16 +4,15 @@ const { userRouter } = require("./routes/user");
 const { courseRouter } = require("./routes/course");
 const { adminRouter } = require("./routes/admin");
 const app = express();
-
+app.use(express.json());
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 app.use("/course", courseRouter);
- // if mongoose.connects succeded then only it will start the server else it will throw an error (it will not start the backend)
+ // if mongoose.connects succeded then only it will start the server (app will start listning on the port 3000) else it will throw an error (it will not start the backend)
 async function main() {
   await mongoose.connect(
-    ""
+    "mongodb+srv://admin:HoK9Sx7Lzq2eeiRD@cluster0.pdzqudi.mongodb.net/coursera-app"
   );
   app.listen(3000);
 }
-
 main();

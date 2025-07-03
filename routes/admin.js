@@ -1,25 +1,86 @@
-const {Router} = require("express")
-const {adminModel} = require("../db")
+const { Router } = require("express");
+const { z } = require("zod");
+const { adminModel } = require("../db");
+const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken')
+const JWT_ADMIN_PASSWORD = "adminkey";
 
-const adminRouter = Router()
+const adminRouter = Router();
+const zodadminschema = z.object({
+  email: z.string().email(),
+  password: z
+    .string()
+    .min(6)
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])/,
+      "Password must include lowercase, uppercase, and a special character"
+    ),
+  firstName: z.string().min(3).max(20),
+  lastName: z.string().min(3).max(20),
+});
+adminRouter.post("/signup", async function (req, res) {
+  try {
+    const { email, password, firstName, lastName } = zodadminschema.parse(
+      req.body
+    );
+    const existingadmin = await adminModel.findOne({ email });
+    if (existingadmin) {
+      return res.status(409).json({
+        message: "Admin already exists",
+      });
+    }
+    const adminhashedpassword = await bcrypt.hash(password, 5);
 
-adminRouter.post("/signup", function(req,res){
-    
-})
-adminRouter.post("/signin", function(req,res){
+    await adminModel.create({
+      email,
+      password: adminhashedpassword,
+      firstName,
+      lastName,
+    });
+    return res.status(201).json({
+      message: "Admin signup succeeded",
+    });
+  } catch (e) {
+    res.status(403).send({
+      error: e.errors || "something went wrong",
+    });
+  }
+});
 
-})
-adminRouter.post("/course", function(req,res){
+adminRouter.post("/signin", async function (req, res) {
+  const { email, password } = req.body;
+  const admin = await adminModel.findOne({
+    email,
+  });
+  if (!admin) {
+    return res.status(403).json({
+      message: "Admin does not exists",
+    });
+  }
 
-})
-adminRouter.put("/course", function(req,res){
+  const passwordMatch = await bcrypt.compare(password, admin.password);
 
-})
-adminRouter.get("/course/all", function(req,res){
+  if (passwordMatch) {
+    const token = jwt.sign(
+      {
+        id: admin._id,
+      },
+      JWT_ADMIN_PASSWORD
+    );
 
+    res.json({
+      token,
+    });
+  } else {
+    res.status(403).json({
+      message: "Invalid creadentials",
+    });
+  }
+});
+adminRouter.post("/course", function (req, res) {});
+adminRouter.put("/course", function (req, res) {});
+adminRouter.get("/course/all", function (req, res) {});
 
-})
-
-module.exports={
-    adminRouter
-}
+module.exports = {
+  adminRouter,
+};
