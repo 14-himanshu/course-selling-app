@@ -3,7 +3,7 @@ const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { userModel } = require("../db");
-const JWT_USER_PASSWORD = "afsgsgds";
+const { JWT_USER_PASSWORD } = require("../config");
 const userRouter = Router();
 
 const zoduserSchema = z.object({
