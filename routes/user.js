@@ -2,8 +2,9 @@ const { Router } = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { userModel } = require("../db");
+const { userModel, purchaseModel ,courseModel} = require("../db");
 const { JWT_USER_PASSWORD } = require("../config");
+const { userMiddleware } = require("../middleware/user");
 const userRouter = Router();
 
 const zoduserSchema = z.object({
@@ -78,9 +79,25 @@ userRouter.post("/signin", async function (req, res) {
   }
 });
 
-userRouter.post("/purchase", function (req, res) {
+userRouter.get("/purchase", userMiddleware,async function (req, res) {
+  const userId = req.userId
+  const purchases = await purchaseModel.find({
+    userId,
+  });
+
+  let purchasedCourseIds = [];
+
+  for (let i = 0; i < purchases.length; i++) {
+    purchasedCourseIds.push(purchases[i].courseId);
+  }
+
+  const coursesData = await courseModel.find({
+    _id: { $in: purchasedCourseIds },
+  });
+
   res.json({
-    message: "signup endpoint",
+    purchases,
+    coursesData,
   });
 });
 
