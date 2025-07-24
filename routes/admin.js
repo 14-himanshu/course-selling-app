@@ -21,6 +21,7 @@ const zodadminschema = z.object({
 });
 adminRouter.post("/signup", async function (req, res) {
   try {
+    
     const { email, password, firstName, lastName } = zodadminschema.parse(
       req.body
     );

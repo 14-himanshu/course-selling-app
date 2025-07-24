@@ -2,7 +2,7 @@ const { Router } = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { userModel, purchaseModel ,courseModel} = require("../db");
+const { userModel, purchaseModel, courseModel } = require("../db");
 const { JWT_USER_PASSWORD } = require("../config");
 const { userMiddleware } = require("../middleware/user");
 const userRouter = Router();
@@ -79,8 +79,8 @@ userRouter.post("/signin", async function (req, res) {
   }
 });
 
-userRouter.get("/purchase", userMiddleware,async function (req, res) {
-  const userId = req.userId
+userRouter.get("/purchase", userMiddleware, async function (req, res) {
+  const userId = req.userId;
   const purchases = await purchaseModel.find({
     userId,
   });
@@ -104,3 +104,16 @@ userRouter.get("/purchase", userMiddleware,async function (req, res) {
 module.exports = {
   userRouter: userRouter,
 };
+
+// onCLick=async ()=>{
+//   const data = await fetch("http://localhost:3000/user/login",{
+//     "content-type" : "application/json",
+//     body: JSON.stringify({
+//       email : "himanshu@gmail.com",
+//       password : "adminkey"
+//     }),
+//     method:"POST"
+//   }) 
+
+//   const response = await data.json();
+// }
