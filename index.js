@@ -12,6 +12,7 @@ app.use("/course", courseRouter);
 // if mongoose.connects succeded then only it will start the server (app will start listning on the port 3000) else it will throw an error (it will not start the backend)
 async function main() {
   await mongoose.connect(process.env.MONGO_URL);
+
   app.listen(3000);
 }
 main();
