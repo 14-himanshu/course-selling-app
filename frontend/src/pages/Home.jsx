@@ -90,6 +90,15 @@ export default function Home() {
   };
 
   const openRazorpay = (data, courseId, userPhone) => {
+    // Clear any Razorpay-cached contact info from previous sessions
+    try {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('rzp_') || key.includes('razorpay')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (_) {}
+
     const options = {
       key: data.keyId,
       amount: data.amount,
@@ -98,7 +107,19 @@ export default function Home() {
       description: "Course Enrollment",
       order_id: data.orderId,
       prefill: {
-        contact: userPhone // Always the number the user just typed — never Razorpay's cache
+        contact: '+91' + userPhone
+      },
+      readonly: {
+        contact: true
+      },
+      // Hide the "Using as +91 XXXXXX" cached contact block in Razorpay's UI
+      config: {
+        display: {
+          hide: [{ method: 'contact' }],
+          preferences: {
+            show_default_blocks: true
+          }
+        }
       },
       handler: async function (response) {
         try {
