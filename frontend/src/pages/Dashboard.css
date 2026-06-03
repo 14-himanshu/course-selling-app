@@ -1,10 +1,11 @@
 .dashboard-container {
   align-items: flex-start;
+  padding-top: 3rem;
 }
 
 .dashboard-sidebar {
-  width: 350px;
-  padding: 1.5rem;
+  width: 320px;
+  padding: 2rem;
   flex-shrink: 0;
   position: sticky;
   top: 100px;

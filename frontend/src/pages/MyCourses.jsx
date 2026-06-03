@@ -33,13 +33,10 @@ export default function MyCourses() {
   }, [isAuthenticated, role, navigate, token]);
 
   return (
-    <div className="container">
-      <div className="my-courses-header">
-        <h1 className="hero-title" style={{ fontSize: '2.5rem', textAlign: 'left' }}>My Learning</h1>
-        <div className="header-section text-center mb-4">
-        <h2>My Learning Journey</h2>
+    <div className="container" style={{ paddingTop: '3rem' }}>
+      <div className="header-section text-center mb-4">
+        <h1 className="hero-title" style={{ fontSize: '2.5rem' }}>My Learning Journey</h1>
         <p className="text-muted">Continue where you left off.</p>
-      </div>
       </div>
 
       {loading ? (
@@ -54,7 +51,7 @@ export default function MyCourses() {
           <button className="btn-primary" onClick={() => navigate('/')}>Browse Courses</button>
         </div>
       ) : (
-        <div className="courses-grid">
+        <div className="course-grid">
           {courses.map(course => (
               <div key={course._id} className="card course-card">
                 <img src={course.imageUrl} alt={course.title} className="course-img" />
