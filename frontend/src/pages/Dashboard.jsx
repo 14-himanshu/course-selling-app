@@ -10,7 +10,7 @@ export default function Dashboard() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
 
@@ -33,38 +33,53 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(data => setCourses(data.courses || []))
       .catch(console.error);
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || role !== 'admin') {
+      navigate('/');
+      return;
+    }
+
+    fetchCourses();
   }, [isAuthenticated, role, navigate, token]);
 
   const handleCreateCourse = async (e) => {
     e.preventDefault();
+    if (!imageFile) {
+      alert("Please select an image file.");
+      return;
+    }
     setLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('price', price);
+      formData.append('image', imageFile);
+
       const res = await fetch('http://localhost:3000/admin/course', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'token': token
+          // Note: DO NOT set 'Content-Type' when using FormData, the browser sets it automatically with the boundary!
         },
-        body: JSON.stringify({
-          title,
-          description,
-          price: parseFloat(price),
-          imageUrl
-        })
+        body: formData
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || data.error?.[0]?.message || 'Failed to create course');
+      if (!res.ok) throw new Error(data.message || 'Failed to create course');
 
       alert('Course created successfully!');
-      
-      // Refresh course list and clear form
-      setCourses([...courses, { _id: data.courseId, title, description, price: parseFloat(price), imageUrl }]);
+      fetchCourses();
       setTitle('');
       setDescription('');
       setPrice('');
-      setImageUrl('');
+      setImageFile(null);
+      // clear the file input visually
+      const fileInput = document.getElementById('image-upload');
+      if (fileInput) fileInput.value = '';
     } catch (err) {
       alert(err.message);
     } finally {
@@ -114,15 +129,23 @@ export default function Dashboard() {
           </div>
           <div className="input-group">
             <label>Description</label>
-            <textarea className="input-field" rows="3" value={description} onChange={e => setDescription(e.target.value)} required />
+            <textarea className="input-field" rows="3" value={description} onChange={e => setDescription(e.target.value)} required></textarea>
           </div>
           <div className="input-group">
             <label>Price ($)</label>
             <input type="number" step="0.01" className="input-field" value={price} onChange={e => setPrice(e.target.value)} required />
           </div>
           <div className="input-group">
-            <label>Image URL</label>
-            <input type="url" className="input-field" value={imageUrl} onChange={e => setImageUrl(e.target.value)} required />
+            <label>Course Thumbnail (Image)</label>
+            <input 
+              id="image-upload"
+              type="file" 
+              accept="image/*"
+              className="input-field" 
+              onChange={e => setImageFile(e.target.files[0])} 
+              required 
+              style={{padding: '0.5rem'}}
+            />
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Creating...' : 'Create Course'}

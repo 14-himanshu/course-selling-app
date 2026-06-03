@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_ADMIN_PASSWORD } = require("../config");
 const { adminMiddleware } = require("../middleware/admin");
+const { upload } = require("../utils/cloudinary");
 
 const adminRouter = Router();
 
@@ -29,16 +30,14 @@ const signinSchema = z.object({
 const createCourseSchema = z.object({
   title: z.string().min(3).max(100),
   description: z.string().min(5),
-  imageUrl: z.string().url(),
-  price: z.number().positive(),
+  price: z.coerce.number().positive(),
 });
 
 const updateCourseSchema = z.object({
-  courseId: z.string().length(24), // basic check for ObjectId length
+  courseId: z.string().length(24),
   title: z.string().min(3).max(100).optional(),
   description: z.string().min(5).optional(),
-  imageUrl: z.string().url().optional(),
-  price: z.number().positive().optional(),
+  price: z.coerce.number().positive().optional(),
 });
 
 const createLessonSchema = z.object({
@@ -97,34 +96,44 @@ adminRouter.post("/signin", async function (req, res, next) {
     next(e);
   }
 });
-adminRouter.post("/course", adminMiddleware, async function (req, res, next) {
+adminRouter.post("/course", adminMiddleware, upload.single("image"), async function (req, res, next) {
   try {
     const adminId = req.userId;
-    const { title, description, imageUrl, price } = createCourseSchema.parse(req.body);
+    const { title, description, price } = createCourseSchema.parse(req.body);
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
 
     const course = await courseModel.create({
       title,
       description,
-      imageUrl,
+      imageUrl: req.file.path, // Cloudinary secure URL
       price,
       createrId: adminId,
     });
     res.json({
-      message: "Course cerated",
+      message: "Course created successfully",
       courseId: course._id,
     });
   } catch (e) {
     next(e);
   }
 });
-adminRouter.put("/course", adminMiddleware, async function (req, res, next) {
+adminRouter.put("/course", adminMiddleware, upload.single("image"), async function (req, res, next) {
   try {
     const adminId = req.userId;
-    const { title, description, imageUrl, price, courseId } = updateCourseSchema.parse(req.body);
+    const { title, description, price, courseId } = updateCourseSchema.parse(req.body);
+
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+    if (price) updateData.price = price;
+    if (req.file) updateData.imageUrl = req.file.path; // update image only if new one uploaded
 
     const course = await courseModel.updateOne(
       { _id: courseId, createrId: adminId },
-      { title, description, imageUrl, price }
+      updateData
     );
     res.json({
       message: "Course updated",
