@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -14,6 +15,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
+          <Toaster position="top-center" toastOptions={{ duration: 3000, style: { background: '#333', color: '#fff' } }} />
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
             <main style={{ flex: 1, padding: '2rem 0' }}>
