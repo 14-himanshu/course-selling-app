@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { z } = require("zod");
-const { adminModel, courseModel } = require("../db");
+const { adminModel, courseModel, lessonModel } = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_ADMIN_PASSWORD } = require("../config");
@@ -40,6 +40,14 @@ const updateCourseSchema = z.object({
   imageUrl: z.string().url().optional(),
   price: z.number().positive().optional(),
 });
+
+const createLessonSchema = z.object({
+  title: z.string().min(3).max(100),
+  description: z.string().optional(),
+  videoUrl: z.string().url(),
+  order: z.number().optional()
+});
+
 adminRouter.post("/signup", async function (req, res) {
   try {
     const { email, password, firstName, lastName } = zodadminschema.parse(
@@ -158,6 +166,35 @@ adminRouter.get("/course/all", adminMiddleware, async function (req, res, next) 
   }
 });
 
+adminRouter.post("/course/:courseId/lesson", adminMiddleware, async function (req, res, next) {
+  try {
+    const adminId = req.userId;
+    const courseId = req.params.courseId;
+    
+    // Check if the course belongs to the admin
+    const course = await courseModel.findOne({ _id: courseId, createrId: adminId });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found or you do not have permission" });
+    }
+
+    const { title, description, videoUrl, order } = createLessonSchema.parse(req.body);
+
+    const lesson = await lessonModel.create({
+      courseId,
+      title,
+      description,
+      videoUrl,
+      order: order || 0
+    });
+
+    res.status(201).json({
+      message: "Lesson created successfully",
+      lessonId: lesson._id
+    });
+  } catch (e) {
+    next(e);
+  }
+});
 
 module.exports = {
   adminRouter,

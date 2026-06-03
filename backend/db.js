@@ -23,19 +23,29 @@ const courseSchema = new Schema({
   price: Number,
   createrId: ObjectId,
 });
-const purchasesSchema = new Schema({
-  userId: ObjectId,
-  courseId: ObjectId,
+const purchaseSchema = new Schema({
+    courseId: ObjectId,
+    userId: ObjectId
 });
 
-const userModel = mongoose.model("user", userSchema);
-const adminModel = mongoose.model("admin", adminSchema);
-const courseModel = mongoose.model("course", courseSchema);
-const purchaseModel = mongoose.model("purchases", purchasesSchema);
+const lessonSchema = new Schema({
+    courseId: { type: ObjectId, ref: 'courses', required: true },
+    title: { type: String, required: true },
+    description: String,
+    videoUrl: { type: String, required: true },
+    order: { type: Number, default: 0 }
+});
+
+const userModel = mongoose.model("users", userSchema);
+const adminModel = mongoose.model("admins", adminSchema);
+const courseModel = mongoose.model("courses", courseSchema);
+const purchaseModel = mongoose.model("purchases", purchaseSchema);
+const lessonModel = mongoose.model("lessons", lessonSchema);
 
 module.exports = {
   userModel,
   adminModel,
   courseModel,
   purchaseModel,
+  lessonModel,
 };

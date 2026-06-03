@@ -37,16 +37,72 @@ export default function Home() {
 
     setPurchasing(courseId);
     try {
-      const res = await fetch(`http://localhost:3000/user/purchase/${courseId}`, {
+      // 1. Create Razorpay Order
+      const res = await fetch(`http://localhost:3000/user/purchase/${courseId}/order`, {
         method: 'POST',
         headers: { 'token': token }
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Purchase failed');
-      alert('Successfully enrolled!');
+      if (!res.ok) throw new Error(data.message || 'Failed to generate order');
+
+      // 2. Load Razorpay Script
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+
+      script.onload = () => {
+        const options = {
+          key: data.keyId,
+          amount: data.amount,
+          currency: data.currency,
+          name: "CourseSpace",
+          description: "Course Enrollment",
+          order_id: data.orderId,
+          handler: async function (response) {
+            try {
+              // 3. Verify Payment
+              const verifyRes = await fetch(`http://localhost:3000/user/purchase/verify`, {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'token': token 
+                },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  courseId
+                })
+              });
+              const verifyData = await verifyRes.json();
+              if (!verifyRes.ok) throw new Error(verifyData.message || 'Payment verification failed');
+              
+              alert('Payment Successful! Course Enrolled.');
+              navigate('/my-courses');
+            } catch (err) {
+              alert(err.message);
+            }
+          },
+          theme: {
+            color: "#6366f1" // matches var(--accent-color)
+          }
+        };
+        const rzp1 = new window.Razorpay(options);
+        rzp1.on('payment.failed', function (response){
+          alert("Payment failed: " + response.error.description);
+        });
+        rzp1.open();
+        setPurchasing(null); // allow clicking again if they close modal
+      };
+      
+      script.onerror = () => {
+        alert("Failed to load Razorpay SDK. Are you online?");
+        setPurchasing(null);
+      };
+      
     } catch (err) {
       alert(err.message);
-    } finally {
       setPurchasing(null);
     }
   };

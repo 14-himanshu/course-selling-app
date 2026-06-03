@@ -11,7 +11,7 @@ function adminMiddleware(req, res, next) {
     try {
         const decoded = jwt.verify(token, JWT_ADMIN_PASSWORD);
         if (decoded) {
-            req.adminId = decoded.id;
+            req.userId = decoded.id;
             next();
         } else {
             res.status(403).json({ message: "You are not signed in" });

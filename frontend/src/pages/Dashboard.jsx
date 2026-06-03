@@ -14,6 +14,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
 
+  // Lesson State
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [lessonTitle, setLessonTitle] = useState('');
+  const [lessonVideoUrl, setLessonVideoUrl] = useState('');
+  const [lessonLoading, setLessonLoading] = useState(false);
+
   useEffect(() => {
     if (!isAuthenticated || role !== 'admin') {
       navigate('/');
@@ -66,6 +72,37 @@ export default function Dashboard() {
     }
   };
 
+  const handleAddLesson = async (e) => {
+    e.preventDefault();
+    setLessonLoading(true);
+
+    try {
+      const res = await fetch(`http://localhost:3000/admin/course/${selectedCourse._id}/lesson`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token
+        },
+        body: JSON.stringify({
+          title: lessonTitle,
+          videoUrl: lessonVideoUrl
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to add lesson');
+
+      alert('Lesson added successfully!');
+      setSelectedCourse(null);
+      setLessonTitle('');
+      setLessonVideoUrl('');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLessonLoading(false);
+    }
+  };
+
   return (
     <div className="container dashboard-container flex gap-4">
       <div className="card dashboard-sidebar">
@@ -99,15 +136,52 @@ export default function Dashboard() {
           {courses.map(course => (
             <div key={course._id} className="card course-card">
               <img src={course.imageUrl} alt={course.title} className="course-img" style={{height: '150px'}} />
-              <div className="course-content">
-                <h3 className="course-title" style={{fontSize: '1rem'}}>{course.title}</h3>
-                <span className="course-price">${course.price}</span>
+              <div className="course-content flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="course-title" style={{fontSize: '1rem'}}>{course.title}</h3>
+                  <span className="course-price">${course.price}</span>
+                </div>
+                <button 
+                  className="btn-secondary" 
+                  style={{marginTop: '1rem', width: '100%'}}
+                  onClick={() => setSelectedCourse(course)}
+                >
+                  Add Lesson
+                </button>
               </div>
             </div>
           ))}
           {courses.length === 0 && <p style={{color: 'var(--text-secondary)'}}>You haven't created any courses yet.</p>}
         </div>
       </div>
+
+      {selectedCourse && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', 
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div className="card" style={{width: '400px', padding: '2rem'}}>
+            <h3 style={{marginBottom: '1.5rem'}}>Add Lesson to "{selectedCourse.title}"</h3>
+            <form className="flex flex-col gap-4" onSubmit={handleAddLesson}>
+              <div className="input-group">
+                <label>Lesson Title</label>
+                <input type="text" className="input-field" value={lessonTitle} onChange={e => setLessonTitle(e.target.value)} required />
+              </div>
+              <div className="input-group">
+                <label>Video URL</label>
+                <input type="url" className="input-field" placeholder="https://youtube.com/..." value={lessonVideoUrl} onChange={e => setLessonVideoUrl(e.target.value)} required />
+              </div>
+              <div className="flex gap-4 mt-4">
+                <button type="button" className="btn-secondary flex-1" onClick={() => setSelectedCourse(null)}>Cancel</button>
+                <button type="submit" className="btn-primary flex-1" disabled={lessonLoading}>
+                  {lessonLoading ? 'Saving...' : 'Save Lesson'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
