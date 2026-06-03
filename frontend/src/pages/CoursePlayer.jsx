@@ -84,7 +84,7 @@ export default function CoursePlayer() {
             <h1 className="video-title">{activeLesson.title}</h1>
             <div className="video-wrapper card">
               <ReactPlayer 
-                url={activeLesson.videoUrl} 
+                url={activeLesson.videoUrl.startsWith('http') ? activeLesson.videoUrl : `https://${activeLesson.videoUrl}`} 
                 controls={true}
                 width="100%"
                 height="100%"
