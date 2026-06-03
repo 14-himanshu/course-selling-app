@@ -22,19 +22,19 @@
 }
 
 [data-theme="dark"] {
-  /* Dark Theme - Deep Slate, Calm */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
+  /* Dark Theme - High Contrast, Modern SaaS */
+  --bg-primary: #020617; /* Very deep slate */
+  --bg-secondary: #0f172a; /* Slightly lighter slate for cards */
+  --bg-tertiary: #1e293b;
   
   --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
+  --text-secondary: #94a3b8;
   --text-tertiary: #64748b;
   
-  --accent-color: #3b82f6;
-  --accent-hover: #60a5fa;
+  --accent-color: #38bdf8; /* Brighter blue/cyan for dark mode */
+  --accent-hover: #7dd3fc;
   
-  --border-color: #334155;
+  --border-color: #1e293b;
   
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
@@ -87,6 +87,9 @@ button {
 .justify-center { justify-content: center; }
 .gap-4 { gap: 1rem; }
 .gap-2 { gap: 0.5rem; }
+.text-center { text-align: center; }
+.mb-4 { margin-bottom: 1rem; }
+.text-muted { color: var(--text-secondary); }
 
 /* Common UI Components */
 .btn-primary {

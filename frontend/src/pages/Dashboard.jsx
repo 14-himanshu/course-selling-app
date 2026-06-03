@@ -150,7 +150,7 @@ export default function Dashboard() {
 
       <div className="dashboard-content flex-1">
         <h2 className="section-title">Your Courses</h2>
-        <div className="courses-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+        <div className="course-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
           {courses.map(course => (
             <div key={course._id} className="card course-card">
               <img src={course.imageUrl} alt={course.title} className="course-img" style={{height: '150px'}} />

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PlayCircle, ArrowLeft } from 'lucide-react';
+import ReactPlayer from 'react-player';
 import './CoursePlayer.css';
 
 export default function CoursePlayer() {
@@ -82,17 +83,13 @@ export default function CoursePlayer() {
           <div className="video-container">
             <h1 className="video-title">{activeLesson.title}</h1>
             <div className="video-wrapper card">
-              {/* Note: This assumes the URL is an embeddable URL like YouTube embed. For simple direct MP4 URLs, <video> tag is better. */}
-              {activeLesson.videoUrl.includes('youtube') || activeLesson.videoUrl.includes('vimeo') ? (
-                <iframe 
-                  src={activeLesson.videoUrl} 
-                  frameBorder="0" 
-                  allowFullScreen
-                  className="embedded-video"
-                ></iframe>
-              ) : (
-                <video src={activeLesson.videoUrl} controls className="embedded-video"></video>
-              )}
+              <ReactPlayer 
+                url={activeLesson.videoUrl} 
+                controls={true}
+                width="100%"
+                height="100%"
+                className="embedded-video"
+              />
             </div>
             {activeLesson.description && (
               <div className="lesson-description card">
