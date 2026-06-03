@@ -41,7 +41,7 @@ const updateCourseSchema = z.object({
 });
 
 const createLessonSchema = z.object({
-  title: z.string().min(3).max(100),
+  title: z.string().min(1).max(100),
   description: z.string().optional(),
   videoUrl: z.string().url(),
   order: z.number().optional()
@@ -220,7 +220,7 @@ adminRouter.put("/course/:courseId", adminMiddleware, upload.single('image'), as
         }
 
         const course = await courseModel.findOneAndUpdate(
-            { _id: courseId, creatorId: adminId },
+            { _id: courseId, createrId: adminId },
             updateData,
             { new: true }
         );
@@ -246,7 +246,7 @@ adminRouter.delete("/course/:courseId", adminMiddleware, async function(req, res
 
         const course = await courseModel.findOneAndDelete({
             _id: courseId,
-            creatorId: adminId
+            createrId: adminId
         });
 
         if (!course) {
