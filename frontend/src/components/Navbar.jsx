@@ -1,10 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Moon, Sun, BookOpen } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Moon, Sun, BookOpen, LogOut } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
+  const { isAuthenticated, logout, role } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <nav className="navbar">
@@ -16,7 +24,18 @@ export default function Navbar() {
         
         <div className="nav-links flex items-center gap-4">
           <Link to="/" className="nav-link">Courses</Link>
-          <Link to="/login" className="btn-secondary">Sign In</Link>
+          
+          {isAuthenticated ? (
+            <>
+              {role === 'admin' && <Link to="/dashboard" className="nav-link">Dashboard</Link>}
+              <button onClick={handleLogout} className="btn-secondary flex items-center gap-2">
+                <LogOut size={18} /> Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="btn-secondary">Sign In</Link>
+          )}
+
           <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>

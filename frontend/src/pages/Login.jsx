@@ -1,9 +1,62 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
+  const [role, setRole] = useState('user'); // 'user' or 'admin'
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    const endpoint = isLogin 
+      ? `http://localhost:3000/${role}/signin`
+      : `http://localhost:3000/${role}/signup`;
+
+    const body = isLogin 
+      ? { email, password }
+      : { email, password, firstName, lastName };
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error?.[0]?.message || 'Something went wrong');
+      }
+
+      if (isLogin) {
+        login(data.token, role);
+        navigate('/');
+      } else {
+        // If signup success, switch to login
+        setIsLogin(true);
+        setError('Signup successful! Please sign in.'); // Using error state just to show message for simplicity
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container flex justify-center items-center auth-container">
@@ -16,32 +69,43 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="auth-form flex flex-col gap-4">
+        <div className="role-selector flex justify-center gap-4 mb-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" checked={role === 'user'} onChange={() => setRole('user')} /> Student
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" checked={role === 'admin'} onChange={() => setRole('admin')} /> Admin
+          </label>
+        </div>
+
+        {error && <div className="error-message" style={{color: 'red', textAlign: 'center', marginBottom: '1rem'}}>{error}</div>}
+
+        <form className="auth-form flex flex-col gap-4" onSubmit={handleSubmit}>
           {!isLogin && (
             <div className="flex gap-4">
               <div className="input-group">
                 <label>First Name</label>
-                <input type="text" className="input-field" placeholder="John" />
+                <input type="text" className="input-field" placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} required />
               </div>
               <div className="input-group">
                 <label>Last Name</label>
-                <input type="text" className="input-field" placeholder="Doe" />
+                <input type="text" className="input-field" placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} required />
               </div>
             </div>
           )}
           
           <div className="input-group">
             <label>Email address</label>
-            <input type="email" className="input-field" placeholder="you@example.com" />
+            <input type="email" className="input-field" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           
           <div className="input-group">
             <label>Password</label>
-            <input type="password" className="input-field" placeholder="••••••••" />
+            <input type="password" className="input-field" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
 
-          <button type="button" className="btn-primary auth-submit">
-            {isLogin ? 'Sign In' : 'Sign Up'}
+          <button type="submit" className="btn-primary auth-submit" disabled={loading}>
+            {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Sign Up')}
           </button>
         </form>
 
