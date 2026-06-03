@@ -13,6 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { login } = useAuth();
@@ -28,7 +29,7 @@ export default function Login() {
 
     const body = isLogin 
       ? { email, password }
-      : { email, password, firstName, lastName };
+      : { email, password, firstName, lastName, phone };
 
     try {
       const response = await fetch(endpoint, {
@@ -90,6 +91,13 @@ export default function Login() {
                 <label>Last Name</label>
                 <input type="text" className="input-field" placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} required />
               </div>
+            </div>
+          )}
+
+          {!isLogin && (
+            <div className="input-group">
+              <label>Phone Number</label>
+              <input type="tel" className="input-field" placeholder="9999999999" value={phone} onChange={e => setPhone(e.target.value)} required minLength={10} />
             </div>
           )}
           

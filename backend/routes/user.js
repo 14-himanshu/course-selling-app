@@ -20,6 +20,7 @@ const zoduserSchema = z.object({
     ),
   firstName: z.string().min(3).max(20),
   lastName: z.string().min(3).max(20),
+  phone: z.string().min(10),
 });
 
 const signinSchema = z.object({
@@ -29,7 +30,7 @@ const signinSchema = z.object({
 
 userRouter.post("/signup", async function (req, res) {
   try {
-    const { email, password, firstName, lastName } = zoduserSchema.parse(
+    const { email, password, firstName, lastName, phone } = zoduserSchema.parse(
       req.body
     );
     const existingUser = await userModel.findOne({ email });
@@ -44,6 +45,7 @@ userRouter.post("/signup", async function (req, res) {
       password: hashedpassword,
       firstName,
       lastName,
+      phone,
     });
     res.json({
       message: "You are signed up",
@@ -112,12 +114,16 @@ userRouter.post("/purchase/:courseId/order", userMiddleware, async function (req
 
     const order = await razorpay.orders.create(options);
 
+    const user = await userModel.findById(userId);
+
     res.json({
       message: "Order generated successfully",
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      keyId: RAZORPAY_KEY_ID || 'test_key'
+      keyId: RAZORPAY_KEY_ID || 'test_key',
+      prefillEmail: user?.email || '',
+      prefillContact: user?.phone || ''
     });
   } catch (e) {
     next(e);
