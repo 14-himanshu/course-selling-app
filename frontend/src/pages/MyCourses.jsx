@@ -68,8 +68,7 @@ export default function MyCourses() {
                   </div>
                 </div>
               </div>
-            ))
-          )}
+            ))}
         </div>
       )}
     </div>
