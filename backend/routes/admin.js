@@ -205,6 +205,62 @@ adminRouter.post("/course/:courseId/lesson", adminMiddleware, async function (re
   }
 });
 
+// Update a course
+adminRouter.put("/course/:courseId", adminMiddleware, upload.single('image'), async function(req, res, next) {
+    try {
+        const adminId = req.userId;
+        const courseId = req.params.courseId;
+        const { title, description, price } = req.body;
+
+        const updateData = { title, description, price };
+        
+        // If a new image was uploaded, update the imageUrl
+        if (req.file) {
+            updateData.imageUrl = req.file.path;
+        }
+
+        const course = await courseModel.findOneAndUpdate(
+            { _id: courseId, creatorId: adminId },
+            updateData,
+            { new: true }
+        );
+
+        if (!course) {
+            return res.status(404).json({ message: "Course not found or you do not have permission to edit it" });
+        }
+
+        res.json({
+            message: "Course updated successfully",
+            courseId: course._id
+        });
+    } catch (e) {
+        next(e);
+    }
+});
+
+// Delete a course
+adminRouter.delete("/course/:courseId", adminMiddleware, async function(req, res, next) {
+    try {
+        const adminId = req.userId;
+        const courseId = req.params.courseId;
+
+        const course = await courseModel.findOneAndDelete({
+            _id: courseId,
+            creatorId: adminId
+        });
+
+        if (!course) {
+            return res.status(404).json({ message: "Course not found or you do not have permission to delete it" });
+        }
+
+        res.json({
+            message: "Course deleted successfully"
+        });
+    } catch (e) {
+        next(e);
+    }
+});
+
 module.exports = {
   adminRouter,
 };

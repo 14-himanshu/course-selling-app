@@ -1,22 +1,27 @@
 .dashboard-container {
-  align-items: flex-start;
   padding-top: 3rem;
+  padding-bottom: 4rem;
 }
 
-.dashboard-sidebar {
-  width: 320px;
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 500px;
   padding: 2rem;
-  flex-shrink: 0;
-  position: sticky;
-  top: 100px;
-}
-
-@media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
-  }
-  .dashboard-sidebar {
-    width: 100%;
-    position: static;
-  }
+  max-height: 90vh;
+  overflow-y: auto;
 }
