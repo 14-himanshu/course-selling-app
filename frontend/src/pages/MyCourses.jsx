@@ -57,7 +57,7 @@ export default function MyCourses() {
                     <p className="course-description">{course.description}</p>
                   </div>
                   <div className="course-footer flex items-center justify-between">
-                    <button className="btn-primary" style={{ width: '100%' }}>Start Learning</button>
+                    <button className="btn-primary" style={{ width: '100%' }} onClick={() => navigate(`/course/${course._id}`)}>Start Learning</button>
                   </div>
                 </div>
               </div>

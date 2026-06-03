@@ -2,7 +2,7 @@ const { Router } = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { userModel, purchaseModel ,courseModel} = require("../db");
+const { userModel, purchaseModel, courseModel, lessonModel } = require("../db");
 const { JWT_USER_PASSWORD } = require("../config");
 const { userMiddleware } = require("../middleware/user");
 const userRouter = Router();
@@ -118,6 +118,28 @@ userRouter.get("/purchase", userMiddleware, async function (req, res, next) {
     res.json({
       purchases,
       coursesData,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+userRouter.get("/course/:courseId/lessons", userMiddleware, async function (req, res, next) {
+  try {
+    const userId = req.userId;
+    const courseId = req.params.courseId;
+
+    // Check if user purchased the course
+    const purchase = await purchaseModel.findOne({ userId, courseId });
+    if (!purchase) {
+      return res.status(403).json({ message: "You have not purchased this course yet." });
+    }
+
+    const lessons = await lessonModel.find({ courseId }).sort({ order: 1 });
+
+    res.json({
+      message: "Lessons retrieved successfully",
+      lessons
     });
   } catch (e) {
     next(e);
