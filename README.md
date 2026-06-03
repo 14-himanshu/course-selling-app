@@ -2,7 +2,7 @@
 
 CourseSpace is a modern, enterprise-grade Course Selling Application built with the MERN stack. It features a beautiful, dark-mode focused UI, a custom YouTube video player, and a highly secure backend.
 
-## ✨ Features
+## Features
 
 ### Frontend (React & Vite)
 - **Stunning Dark-Mode UI**: Built with pure CSS, featuring glassmorphism, responsive grids, and subtle micro-animations.
@@ -17,7 +17,7 @@ CourseSpace is a modern, enterprise-grade Course Selling Application built with 
 - **Cloud Storage**: Integrated with `Cloudinary` and `multer` for secure, cloud-based image hosting for course thumbnails.
 - **Authentication**: JWT-based authentication with properly segregated Admin and User middlewares.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v18+)
@@ -49,7 +49,7 @@ CourseSpace is a modern, enterprise-grade Course Selling Application built with 
    node index.js
    ```
 
-## 🛠 Tech Stack
+## Tech Stack
 - **Database**: MongoDB & Mongoose
 - **Backend**: Express, Zod, JWT, Winston, Helmet
 - **Frontend**: React, Vite, Lucide-React
