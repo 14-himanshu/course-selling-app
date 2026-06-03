@@ -20,6 +20,11 @@ const zoduserSchema = z.object({
   lastName: z.string().min(3).max(20),
 });
 
+const signinSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
 userRouter.post("/signup", async function (req, res) {
   try {
     const { email, password, firstName, lastName } = zoduserSchema.parse(
@@ -48,57 +53,75 @@ userRouter.post("/signup", async function (req, res) {
   }
 });
 
-userRouter.post("/signin", async function (req, res) {
-  const { email, password } = req.body;
-  const user = await userModel.findOne({
-    email,
-  });
-  if (!user) {
-    return res.status(403).json({
-      message: "Users does not exists",
-    });
-  }
+userRouter.post("/signin", async function (req, res, next) {
+  try {
+    const { email, password } = signinSchema.parse(req.body);
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(403).json({ message: "Users does not exists" });
+    }
 
-  const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
-  if (passwordMatch) {
-    const token = jwt.sign(
-      {
-        id: user._id,
-      },
-      JWT_USER_PASSWORD
-    );
-
-    res.json({
-      token,
-    });
-  } else {
-    res.status(403).json({
-      message: "Invalid creadentials",
-    });
+    if (passwordMatch) {
+      const token = jwt.sign({ id: user._id }, JWT_USER_PASSWORD);
+      res.json({ token });
+    } else {
+      res.status(403).json({ message: "Invalid creadentials" });
+    }
+  } catch (e) {
+    next(e);
   }
 });
 
-userRouter.get("/purchase", userMiddleware,async function (req, res) {
-  const userId = req.userId
-  const purchases = await purchaseModel.find({
-    userId,
-  });
+userRouter.post("/purchase/:courseId", userMiddleware, async function (req, res, next) {
+  try {
+    const userId = req.userId;
+    const courseId = req.params.courseId;
 
-  let purchasedCourseIds = [];
+    // Check if course exists
+    const course = await courseModel.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
 
-  for (let i = 0; i < purchases.length; i++) {
-    purchasedCourseIds.push(purchases[i].courseId);
+    // Check if already purchased
+    const existingPurchase = await purchaseModel.findOne({ userId, courseId });
+    if (existingPurchase) {
+      return res.status(409).json({ message: "You have already purchased this course" });
+    }
+
+    await purchaseModel.create({
+      userId,
+      courseId,
+    });
+
+    res.json({
+      message: "Course purchased successfully",
+    });
+  } catch (e) {
+    next(e);
   }
+});
 
-  const coursesData = await courseModel.find({
-    _id: { $in: purchasedCourseIds },
-  });
+userRouter.get("/purchase", userMiddleware, async function (req, res, next) {
+  try {
+    const userId = req.userId;
+    const purchases = await purchaseModel.find({ userId });
 
-  res.json({
-    purchases,
-    coursesData,
-  });
+    const purchasedCourseIds = purchases.map((p) => p.courseId);
+
+    const coursesData = await courseModel.find({
+      _id: { $in: purchasedCourseIds },
+    });
+
+    res.json({
+      purchases,
+      coursesData,
+    });
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = {
