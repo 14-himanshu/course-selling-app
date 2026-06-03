@@ -1,0 +1,21 @@
+.dashboard-container {
+  align-items: flex-start;
+}
+
+.dashboard-sidebar {
+  width: 350px;
+  padding: 1.5rem;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  .dashboard-sidebar {
+    width: 100%;
+    position: static;
+  }
+}

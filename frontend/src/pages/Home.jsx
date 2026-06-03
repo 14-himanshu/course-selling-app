@@ -1,22 +1,55 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 export default function Home() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [purchasing, setPurchasing] = useState(null);
+  
+  const { isAuthenticated, token, role } = useAuth();
+  const navigate = useNavigate();
 
-  // In a real scenario, we'd fetch from http://localhost:3000/admin/course/all
-  // but since we might not have a token yet, we just show placeholder data for the beautiful UI
   useEffect(() => {
-    setTimeout(() => {
-      setCourses([
-        { _id: '1', title: 'Modern React Bootcamp', description: 'Master React, Hooks, and Context API.', price: 49.99, imageUrl: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80' },
-        { _id: '2', title: 'Advanced Node.js', description: 'Learn Express, MongoDB, and API design.', price: 59.99, imageUrl: 'https://images.unsplash.com/photo-1627398240411-d102e3b2e535?w=800&q=80' },
-        { _id: '3', title: 'UI/UX Design Fundamentals', description: 'Create beautiful, user-centered designs.', price: 39.99, imageUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80' }
-      ]);
-      setLoading(false);
-    }, 1000);
+    fetch('http://localhost:3000/course/preview')
+      .then(res => res.json())
+      .then(data => {
+        setCourses(data.courses || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch courses:", err);
+        setLoading(false);
+      });
   }, []);
+
+  const handleEnroll = async (courseId) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    
+    if (role === 'admin') {
+      alert("Admins cannot purchase courses.");
+      return;
+    }
+
+    setPurchasing(courseId);
+    try {
+      const res = await fetch(`http://localhost:3000/user/purchase/${courseId}`, {
+        method: 'POST',
+        headers: { 'token': token }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Purchase failed');
+      alert('Successfully enrolled!');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setPurchasing(null);
+    }
+  };
 
   return (
     <div className="container">
@@ -41,7 +74,13 @@ export default function Home() {
                   </div>
                   <div className="course-footer flex items-center justify-between">
                     <span className="course-price">${course.price}</span>
-                    <button className="btn-primary">Enroll Now</button>
+                    <button 
+                      className="btn-primary" 
+                      onClick={() => handleEnroll(course._id)}
+                      disabled={purchasing === course._id}
+                    >
+                      {purchasing === course._id ? 'Enrolling...' : 'Enroll Now'}
+                    </button>
                   </div>
                 </div>
               </div>
