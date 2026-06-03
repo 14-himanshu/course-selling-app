@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { BookX } from 'lucide-react';
+import CourseSkeleton from '../components/CourseSkeleton';
 import './MyCourses.css';
 
 export default function MyCourses() {
@@ -34,21 +36,26 @@ export default function MyCourses() {
     <div className="container">
       <div className="my-courses-header">
         <h1 className="hero-title" style={{ fontSize: '2.5rem', textAlign: 'left' }}>My Learning</h1>
-        <p className="hero-subtitle" style={{ textAlign: 'left', marginLeft: 0 }}>Courses you have enrolled in.</p>
+        <div className="header-section text-center mb-4">
+        <h2>My Learning Journey</h2>
+        <p className="text-muted">Continue where you left off.</p>
+      </div>
       </div>
 
       {loading ? (
-        <div className="loading-state">Loading your courses...</div>
+        <div className="course-grid">
+          {[1, 2, 3].map(n => <CourseSkeleton key={n} />)}
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="empty-state text-center" style={{ padding: '6rem 0' }}>
+          <BookX size={80} style={{ color: 'var(--text-muted)', margin: '0 auto 1.5rem', opacity: 0.5 }} />
+          <h3>You haven't enrolled in any courses yet</h3>
+          <p className="text-muted mb-4">Discover your next passion in our library.</p>
+          <button className="btn-primary" onClick={() => navigate('/')}>Browse Courses</button>
+        </div>
       ) : (
         <div className="courses-grid">
-          {courses.length === 0 ? (
-            <div className="empty-state card">
-              <h3>No courses yet!</h3>
-              <p>Explore our library and enroll in your first course.</p>
-              <button className="btn-primary" onClick={() => navigate('/')}>Browse Courses</button>
-            </div>
-          ) : (
-            courses.map(course => (
+          {courses.map(course => (
               <div key={course._id} className="card course-card">
                 <img src={course.imageUrl} alt={course.title} className="course-img" />
                 <div className="course-content flex flex-col justify-between">
@@ -61,8 +68,7 @@ export default function MyCourses() {
                   </div>
                 </div>
               </div>
-            ))
-          )}
+            ))}
         </div>
       )}
     </div>

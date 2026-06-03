@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -20,13 +21,7 @@ export default function Dashboard() {
   const [lessonVideoUrl, setLessonVideoUrl] = useState('');
   const [lessonLoading, setLessonLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated || role !== 'admin') {
-      navigate('/');
-      return;
-    }
-
-    // Fetch admin's courses
+  const fetchCourses = () => {
     fetch('http://localhost:3000/admin/course/all', {
       headers: { 'token': token }
     })
@@ -47,7 +42,7 @@ export default function Dashboard() {
   const handleCreateCourse = async (e) => {
     e.preventDefault();
     if (!imageFile) {
-      alert("Please select an image file.");
+      toast.error("Please select an image file.");
       return;
     }
     setLoading(true);
@@ -71,7 +66,7 @@ export default function Dashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to create course');
 
-      alert('Course created successfully!');
+      toast.success('Course created successfully!');
       fetchCourses();
       setTitle('');
       setDescription('');
@@ -81,7 +76,7 @@ export default function Dashboard() {
       const fileInput = document.getElementById('image-upload');
       if (fileInput) fileInput.value = '';
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -107,12 +102,12 @@ export default function Dashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to add lesson');
 
-      alert('Lesson added successfully!');
+      toast.success('Lesson added successfully!');
       setSelectedCourse(null);
       setLessonTitle('');
       setLessonVideoUrl('');
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setLessonLoading(false);
     }

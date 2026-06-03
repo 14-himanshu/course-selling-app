@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import './Login.css';
 
 export default function Login() {
@@ -11,7 +12,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { login } = useAuth();
@@ -19,7 +19,6 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     const endpoint = isLogin 
@@ -44,15 +43,16 @@ export default function Login() {
       }
 
       if (isLogin) {
+        toast.success("Welcome back!");
         login(data.token, role);
         navigate('/');
       } else {
         // If signup success, switch to login
         setIsLogin(true);
-        setError('Signup successful! Please sign in.'); // Using error state just to show message for simplicity
+        toast.success('Signup successful! Please sign in.');
       }
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -77,8 +77,6 @@ export default function Login() {
             <input type="radio" checked={role === 'admin'} onChange={() => setRole('admin')} /> Admin
           </label>
         </div>
-
-        {error && <div className="error-message" style={{color: 'red', textAlign: 'center', marginBottom: '1rem'}}>{error}</div>}
 
         <form className="auth-form flex flex-col gap-4" onSubmit={handleSubmit}>
           {!isLogin && (

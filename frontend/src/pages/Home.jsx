@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { User, BookOpen, Clock, PlayCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
+import CourseSkeleton from '../components/CourseSkeleton';
 import './Home.css';
 
 export default function Home() {
@@ -31,7 +34,7 @@ export default function Home() {
     }
     
     if (role === 'admin') {
-      alert("Admins cannot purchase courses.");
+      toast.error("Admins cannot purchase courses.");
       return;
     }
 
@@ -78,10 +81,10 @@ export default function Home() {
               const verifyData = await verifyRes.json();
               if (!verifyRes.ok) throw new Error(verifyData.message || 'Payment verification failed');
               
-              alert('Payment Successful! Course Enrolled.');
+              toast.success('Payment Successful! Course Enrolled.');
               navigate('/my-courses');
             } catch (err) {
-              alert(err.message);
+              toast.error(err.message);
             }
           },
           theme: {
@@ -90,36 +93,56 @@ export default function Home() {
         };
         const rzp1 = new window.Razorpay(options);
         rzp1.on('payment.failed', function (response){
-          alert("Payment failed: " + response.error.description);
+          toast.error("Payment failed: " + response.error.description);
         });
         rzp1.open();
         setPurchasing(null); // allow clicking again if they close modal
       };
       
       script.onerror = () => {
-        alert("Failed to load Razorpay SDK. Are you online?");
+        toast.error("Failed to load Razorpay SDK. Are you online?");
         setPurchasing(null);
       };
       
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
       setPurchasing(null);
     }
   };
 
   return (
-    <div className="container">
-      <header className="hero">
-        <h1 className="hero-title">Unlock Your Potential</h1>
-        <p className="hero-subtitle">Learn from industry experts and take your skills to the next level with our premium courses.</p>
-      </header>
+    <div className="home-container">
+      {/* Dynamic Hero Section */}
+      <section className="hero-section">
+        <div className="hero-content text-center">
+          <h1 className="hero-title">Master your craft with world-class courses</h1>
+          <p className="hero-subtitle">
+            Join thousands of students learning from top instructors. Upgrade your skills and achieve your goals today.
+          </p>
+          <div className="hero-buttons">
+            <a href="#courses" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>Explore Courses</a>
+          </div>
+        </div>
+      </section>
 
-      <section className="courses-section">
-        <h2 className="section-title">Available Courses</h2>
+      <div id="courses" className="container" style={{ paddingTop: '4rem' }}>
+        <div className="header-section text-center mb-4">
+          <h2>Available Courses</h2>
+          <p className="text-muted">Explore our library and start learning today.</p>
+        </div>
+
         {loading ? (
-          <div className="loading-state">Loading amazing courses...</div>
+          <div className="course-grid">
+            {[1, 2, 3, 4, 5, 6].map(n => <CourseSkeleton key={n} />)}
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="empty-state text-center" style={{ padding: '4rem 0' }}>
+            <BookOpen size={64} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
+            <h3>No courses available yet</h3>
+            <p className="text-muted">Check back later for new amazing content!</p>
+          </div>
         ) : (
-          <div className="courses-grid">
+          <div className="course-grid">
             {courses.map(course => (
               <div key={course._id} className="card course-card">
                 <img src={course.imageUrl} alt={course.title} className="course-img" />
@@ -143,7 +166,7 @@ export default function Home() {
             ))}
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 }
