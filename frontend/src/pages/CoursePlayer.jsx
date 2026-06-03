@@ -27,7 +27,7 @@ export default function CoursePlayer() {
       return;
     }
 
-    fetch(`http://localhost:3000/user/course/${courseId}/lessons`, {
+    fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/user/course/${courseId}/lessons`, {
       headers: { 'token': token }
     })
       .then(async (res) => {

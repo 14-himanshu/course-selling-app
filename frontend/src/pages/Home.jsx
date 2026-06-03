@@ -15,7 +15,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3000/course/preview')
+    fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/course/preview`)
       .then(res => res.json())
       .then(data => {
         setCourses(data.courses || []);
@@ -41,7 +41,7 @@ export default function Home() {
     setPurchasing(courseId);
     try {
       // 1. Create Razorpay Order
-      const res = await fetch(`http://localhost:3000/user/purchase/${courseId}/order`, {
+      const res = await fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/user/purchase/${courseId}/order`, {
         method: 'POST',
         headers: { 'token': token }
       });
@@ -65,7 +65,7 @@ export default function Home() {
           handler: async function (response) {
             try {
               // 3. Verify Payment
-              const verifyRes = await fetch(`http://localhost:3000/user/purchase/verify`, {
+              const verifyRes = await fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/user/purchase/verify`, {
                 method: 'POST',
                 headers: { 
                   'Content-Type': 'application/json',

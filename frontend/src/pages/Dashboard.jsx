@@ -27,7 +27,7 @@ export default function Dashboard() {
   const [lessonLoading, setLessonLoading] = useState(false);
 
   const fetchCourses = () => {
-    fetch('http://localhost:3000/admin/course/all', {
+    fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/course/all`, {
       headers: { 'token': token }
     })
       .then(res => res.json())
@@ -84,8 +84,8 @@ export default function Dashboard() {
       }
 
       const url = editingCourseId 
-        ? `http://localhost:3000/admin/course/${editingCourseId}` 
-        : 'http://localhost:3000/admin/course';
+        ? `\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/course/${editingCourseId}` 
+        : `\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/course`;
         
       const method = editingCourseId ? 'PUT' : 'POST';
 
@@ -112,7 +112,7 @@ export default function Dashboard() {
     if (!window.confirm("Are you sure you want to permanently delete this course?")) return;
     
     try {
-      const res = await fetch(`http://localhost:3000/admin/course/${courseId}`, {
+      const res = await fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/course/${courseId}`, {
         method: 'DELETE',
         headers: { 'token': token }
       });
@@ -132,7 +132,7 @@ export default function Dashboard() {
     setLessonLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:3000/admin/course/${selectedCourse._id}/lesson`, {
+      const res = await fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/course/${selectedCourse._id}/lesson`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

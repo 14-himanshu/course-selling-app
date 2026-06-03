@@ -22,8 +22,8 @@ export default function Login() {
     setLoading(true);
 
     const endpoint = isLogin 
-      ? `http://localhost:3000/${role}/signin`
-      : `http://localhost:3000/${role}/signup`;
+      ? `\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/${role}/signin`
+      : `\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/${role}/signup`;
 
     const body = isLogin 
       ? { email, password }

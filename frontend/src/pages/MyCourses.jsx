@@ -17,7 +17,7 @@ export default function MyCourses() {
       return;
     }
 
-    fetch('http://localhost:3000/user/purchase', {
+    fetch(`\${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/user/purchase`, {
       headers: { 'token': token }
     })
       .then(res => res.json())
