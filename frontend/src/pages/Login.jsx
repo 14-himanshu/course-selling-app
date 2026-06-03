@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { API_URL } from '../config';
 import './Login.css';
 
 export default function Login() {
@@ -22,8 +23,8 @@ export default function Login() {
     setLoading(true);
 
     const endpoint = isLogin 
-      ? `http://localhost:3000/${role}/signin`
-      : `http://localhost:3000/${role}/signup`;
+      ? `${API_URL}/${role}/signin`
+      : `${API_URL}/${role}/signup`;
 
     const body = isLogin 
       ? { email, password }

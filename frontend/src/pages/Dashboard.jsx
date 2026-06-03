@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
+import { API_URL } from '../config';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -27,7 +28,7 @@ export default function Dashboard() {
   const [lessonLoading, setLessonLoading] = useState(false);
 
   const fetchCourses = () => {
-    fetch('http://localhost:3000/admin/course/all', {
+    fetch(`${API_URL}/admin/course/all`, {
       headers: { 'token': token }
     })
       .then(res => res.json())
@@ -84,8 +85,8 @@ export default function Dashboard() {
       }
 
       const url = editingCourseId 
-        ? `http://localhost:3000/admin/course/${editingCourseId}` 
-        : 'http://localhost:3000/admin/course';
+        ? `${API_URL}/admin/course/${editingCourseId}` 
+        : `${API_URL}/admin/course`;
         
       const method = editingCourseId ? 'PUT' : 'POST';
 
@@ -112,7 +113,7 @@ export default function Dashboard() {
     if (!window.confirm("Are you sure you want to permanently delete this course?")) return;
     
     try {
-      const res = await fetch(`http://localhost:3000/admin/course/${courseId}`, {
+      const res = await fetch(`${API_URL}/admin/course/${courseId}`, {
         method: 'DELETE',
         headers: { 'token': token }
       });
@@ -132,7 +133,7 @@ export default function Dashboard() {
     setLessonLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:3000/admin/course/${selectedCourse._id}/lesson`, {
+      const res = await fetch(`${API_URL}/admin/course/${selectedCourse._id}/lesson`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { BookX } from 'lucide-react';
 import CourseSkeleton from '../components/CourseSkeleton';
+import { API_URL } from '../config';
 import './MyCourses.css';
 
 export default function MyCourses() {
@@ -17,7 +18,7 @@ export default function MyCourses() {
       return;
     }
 
-    fetch('http://localhost:3000/user/purchase', {
+    fetch(`${API_URL}/user/purchase`, {
       headers: { 'token': token }
     })
       .then(res => res.json())
