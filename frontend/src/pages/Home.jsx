@@ -64,8 +64,7 @@ export default function Home() {
           description: "Course Enrollment",
           order_id: data.orderId,
           prefill: {
-            email: data.prefillEmail,
-            contact: data.prefillContact
+            contact: "" // Prevents Razorpay from auto-filling a cached number
           },
           handler: async function (response) {
             try {
