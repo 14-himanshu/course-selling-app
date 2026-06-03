@@ -28,6 +28,7 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               {role === 'admin' && <Link to="/dashboard" className="nav-link">Dashboard</Link>}
+              {role === 'user' && <Link to="/my-courses" className="nav-link">My Learning</Link>}
               <button onClick={handleLogout} className="btn-secondary flex items-center gap-2">
                 <LogOut size={18} /> Logout
               </button>
