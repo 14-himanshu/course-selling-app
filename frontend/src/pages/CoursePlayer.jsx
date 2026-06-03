@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PlayCircle, ArrowLeft } from 'lucide-react';
-import ReactPlayer from 'react-player/lazy';
+import ReactPlayer from 'react-player';
 import './CoursePlayer.css';
 
 export default function CoursePlayer() {
