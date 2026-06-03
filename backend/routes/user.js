@@ -93,10 +93,15 @@ userRouter.post("/purchase/:courseId/order", userMiddleware, async function (req
       return res.status(409).json({ message: "You have already purchased this course" });
     }
 
+    // Explicit check for Razorpay keys so the user knows exactly why it fails!
+    if (!RAZORPAY_KEY_ID || RAZORPAY_KEY_ID === 'YOUR_RAZORPAY_KEY_ID') {
+      return res.status(500).json({ message: "Admin has not configured Razorpay keys in .env yet!" });
+    }
+
     // Initialize Razorpay
     const razorpay = new Razorpay({
-      key_id: RAZORPAY_KEY_ID || 'test_key',
-      key_secret: RAZORPAY_KEY_SECRET || 'test_secret'
+      key_id: RAZORPAY_KEY_ID,
+      key_secret: RAZORPAY_KEY_SECRET
     });
 
     const options = {
