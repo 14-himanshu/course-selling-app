@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Moon, Sun, BookOpen, LogOut } from 'lucide-react';
+import { Moon, Sun, LogOut } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -17,10 +17,12 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="container flex items-center justify-between">
-        <Link to="/" className="nav-logo flex items-center gap-2">
-          <BookOpen size={24} />
-          <span>CourseSpace</span>
-        </Link>
+        <div className="nav-brand">
+          <Link to="/" className="nav-logo flex items-center gap-2">
+            <img src="/logo.png" alt="CourseSpace Logo" style={{ height: '28px', width: '28px', objectFit: 'contain' }} />
+            <span>CourseSpace</span>
+          </Link>
+        </div>
         
         <div className="nav-links flex items-center gap-4">
           <Link to="/" className="nav-link">Courses</Link>
