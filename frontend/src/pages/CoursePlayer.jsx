@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PlayCircle, ArrowLeft } from 'lucide-react';
+import { API_URL } from '../config';
 import './CoursePlayer.css';
 
 // Helper function to extract YouTube ID
@@ -27,7 +28,7 @@ export default function CoursePlayer() {
       return;
     }
 
-    fetch(`http://localhost:3000/user/course/${courseId}/lessons`, {
+    fetch(`${API_URL}/user/course/${courseId}/lessons`, {
       headers: { 'token': token }
     })
       .then(async (res) => {

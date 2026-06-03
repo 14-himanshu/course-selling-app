@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, BookOpen, Clock, PlayCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import CourseSkeleton from '../components/CourseSkeleton';
+import { API_URL } from '../config';
 import './Home.css';
 
 export default function Home() {
@@ -15,7 +16,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3000/course/preview')
+    fetch(`${API_URL}/course/preview`)
       .then(res => res.json())
       .then(data => {
         setCourses(data.courses || []);
@@ -41,7 +42,7 @@ export default function Home() {
     setPurchasing(courseId);
     try {
       // 1. Create Razorpay Order
-      const res = await fetch(`http://localhost:3000/user/purchase/${courseId}/order`, {
+      const res = await fetch(`${API_URL}/user/purchase/${courseId}/order`, {
         method: 'POST',
         headers: { 'token': token }
       });
@@ -65,7 +66,7 @@ export default function Home() {
           handler: async function (response) {
             try {
               // 3. Verify Payment
-              const verifyRes = await fetch(`http://localhost:3000/user/purchase/verify`, {
+              const verifyRes = await fetch(`${API_URL}/user/purchase/verify`, {
                 method: 'POST',
                 headers: { 
                   'Content-Type': 'application/json',
