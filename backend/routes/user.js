@@ -2,8 +2,10 @@ const { Router } = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
 const { userModel, purchaseModel, courseModel, lessonModel } = require("../db");
-const { JWT_USER_PASSWORD } = require("../config");
+const { JWT_USER_PASSWORD, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = require("../config");
 const { userMiddleware } = require("../middleware/user");
 const userRouter = Router();
 
@@ -74,7 +76,7 @@ userRouter.post("/signin", async function (req, res, next) {
   }
 });
 
-userRouter.post("/purchase/:courseId", userMiddleware, async function (req, res, next) {
+userRouter.post("/purchase/:courseId/order", userMiddleware, async function (req, res, next) {
   try {
     const userId = req.userId;
     const courseId = req.params.courseId;
@@ -91,13 +93,55 @@ userRouter.post("/purchase/:courseId", userMiddleware, async function (req, res,
       return res.status(409).json({ message: "You have already purchased this course" });
     }
 
+    // Initialize Razorpay
+    const razorpay = new Razorpay({
+      key_id: RAZORPAY_KEY_ID || 'test_key',
+      key_secret: RAZORPAY_KEY_SECRET || 'test_secret'
+    });
+
+    const options = {
+      amount: course.price * 100, // amount in smallest currency unit (paise)
+      currency: "INR",
+      receipt: `receipt_order_${Date.now()}`
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json({
+      message: "Order generated successfully",
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: RAZORPAY_KEY_ID || 'test_key'
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+userRouter.post("/purchase/verify", userMiddleware, async function (req, res, next) {
+  try {
+    const userId = req.userId;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, courseId } = req.body;
+
+    // Verify signature
+    const secret = RAZORPAY_KEY_SECRET || 'test_secret';
+    const generated_signature = crypto.createHmac('sha256', secret)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest('hex');
+
+    if (generated_signature !== razorpay_signature) {
+      return res.status(400).json({ message: "Payment verification failed" });
+    }
+
+    // Payment is authentic, grant access
     await purchaseModel.create({
       userId,
       courseId,
     });
 
     res.json({
-      message: "Course purchased successfully",
+      message: "Payment verified and course purchased successfully",
     });
   } catch (e) {
     next(e);
